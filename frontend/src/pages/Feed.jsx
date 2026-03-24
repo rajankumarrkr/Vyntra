@@ -2,32 +2,39 @@ import { useEffect, useState } from "react";
 import API from "../services/api";
 import { useAuth } from "../context/AuthContext";
 
-function StoryItem({ name, active = true }) {
+function StoryItem({ name, active = true, isUser = false }) {
   const initials = name ? name.slice(0, 2).toUpperCase() : "??";
   return (
     <div className="story-item">
-      <div className="story-ring" style={{ background: active ? "var(--ig-gradient)" : "#262626" }}>
+      <div className="story-ring" style={{ background: active ? "var(--ig-gradient)" : "transparent" }}>
         <div className="story-avatar">
-          <div style={{ width: "100%", height: "100%", borderRadius: "50%", background: "#333", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "14px", fontWeight: "700" }}>
+          <div style={{ width: "100%", height: "100%", borderRadius: "50%", background: "#444", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "20px", fontWeight: "700" }}>
             {initials}
           </div>
+          {isUser && (
+            <div className="story-add-badge">
+              <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="3" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+            </div>
+          )}
         </div>
       </div>
-      <span className="story-username">{name}</span>
+      <span className="story-username" style={{ color: isUser ? "var(--text-info)" : "var(--text)" }}>{name}</span>
     </div>
   );
 }
 
 function StoriesBar() {
-  const mockStories = ["Your Story", "cristiano", "leomessi", "natgeo", "nasa", "nike", "apple"];
+  const mockStories = ["rao_ak_yadav...", "nitin_saini_ns_", "mr_rajan..."];
   return (
-    <div className="stories-container glass-strong" style={{ border: "1px solid var(--border)", borderRadius: "8px", background: "var(--surface)", marginBottom: "24px" }}>
+    <div className="stories-container glass-strong" style={{ background: "var(--bg)", borderBottom: "1px solid var(--border)" }}>
+      <StoryItem name="Your story" active={false} isUser={true} />
       {mockStories.map((s, i) => (
-        <StoryItem key={i} name={s} active={i > 0} />
+        <StoryItem key={i} name={s} active={true} />
       ))}
     </div>
   );
 }
+
 
 function PostCard({ post }) {
   const { user } = useAuth();
@@ -74,21 +81,32 @@ function PostCard({ post }) {
 
   return (
     <div className="post-card">
-      {/* Header */}
-      <div className="post-header">
-        <div className="post-user-info">
-          <div className="post-avatar-small">
-            <div className="post-avatar-inner">
-              <div style={{ width: "100%", height: "100%", borderRadius: "50%", background: "#444", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "10px", fontWeight: "700" }}>
-                {post.user?.username?.slice(0, 2).toUpperCase()}
-              </div>
-            </div>
+      <div className="post-header" style={{ padding: "8px 12px" }}>
+        <div className="post-user-info" style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+          {/* Avatar with gradient ring */}
+          <div className="story-ring" style={{ width: "42px", height: "42px", background: "var(--ig-gradient)" }}>
+             <div className="post-avatar-inner" style={{ width: "36px", height: "36px", border: "2px solid var(--bg)", borderRadius: "50%", position: "relative" }}>
+                <div style={{ width: "100%", height: "100%", borderRadius: "50%", background: "#444", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "12px", fontWeight: "700" }}>
+                  {post.user?.username?.slice(0, 2).toUpperCase() || "??"}
+                </div>
+             </div>
           </div>
-          <span style={{ fontSize: "14px", fontWeight: "700" }}>{post.user?.username}</span>
+          <div style={{ display: "flex", flexDirection: "column" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: "4px" }}>
+              <span style={{ fontSize: "14px", fontWeight: "700" }}>{post.user?.username || "zeenews"}</span>
+              {/* Blue tick */}
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="#0095F6"><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10 10-4.5 10-10S17.5 2 12 2zm-1.1 14.5l-4.5-4.5 1.4-1.4 3.1 3.1 7.1-7.1 1.4 1.4-8.5 8.5z"/></svg>
+            </div>
+            <span style={{ fontSize: "12px", color: "var(--text-muted)" }}>Suggested for you</span>
+          </div>
         </div>
-        <button className="nav-icon-btn">
-          <svg width="24" height="24" fill="currentColor" viewBox="0 0 24 24"><path d="M12 10c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0-6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 12c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/></svg>
-        </button>
+        
+        <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+           <button style={{ background: "#262626", color: "#fff", border: "none", borderRadius: "8px", padding: "6px 16px", fontWeight: "600", fontSize: "14px", cursor: "pointer" }}>Follow</button>
+           <button className="nav-icon-btn">
+             <svg width="24" height="24" fill="currentColor" viewBox="0 0 24 24"><path d="M12 10c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0-6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 12c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/></svg>
+           </button>
+        </div>
       </div>
 
       {/* Image */}

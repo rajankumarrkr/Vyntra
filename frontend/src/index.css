@@ -1,4 +1,5 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Grand+Hotel&display=swap');
 
 /* ── Reset & Base ── */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -76,8 +77,20 @@ body {
   justify-content: space-between;
 }
 
-.ig-logo { font-size: 1.5rem; font-weight: 800; letter-spacing: -1px; cursor: pointer; }
-.ig-nav-actions { display: flex; align-items: center; gap: 20px; }
+.ig-logo { 
+  font-family: 'Grand Hotel', cursive; 
+  font-size: 2.2rem; 
+  font-weight: 400; 
+  cursor: pointer; 
+  flex: 1; 
+  text-align: center; 
+}
+@media (min-width: 640px) {
+  .ig-logo { text-align: left; }
+}
+
+.ig-nav-left, .ig-nav-actions { display: flex; align-items: center; flex: 1; }
+.ig-nav-actions { justify-content: flex-end; gap: 20px; }
 
 /* ── Utilities ── */
 /* Show only on Desktop (>= 640px) */
@@ -105,10 +118,28 @@ body {
 @media (max-width: 640px) { .ig-main { width: 100%; padding-top: 12px; } }
 
 .stories-container {
-  display: flex; gap: 12px; overflow-x: auto; padding: 16px 4px; margin-bottom: 24px;
-  scrollbar-width: none; border-bottom: 1px solid var(--border);
+  display: flex; gap: 12px; overflow-x: auto; padding: 12px 0 8px 12px; margin-bottom: 0px;
+  scrollbar-width: none; border-bottom: none;
 }
 .stories-container::-webkit-scrollbar { display: none; }
+
+.story-item {
+  display: flex; flex-direction: column; align-items: center; gap: 4px; cursor: pointer;
+}
+.story-ring {
+  width: 76px; height: 76px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
+}
+.story-avatar {
+  width: 68px; height: 68px; border-radius: 50%; border: 3px solid var(--bg); background: var(--surface-secondary); position: relative;
+}
+.story-username {
+  font-size: 12px; max-width: 76px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--text);
+}
+.story-add-badge {
+  position: absolute; bottom: 0; right: 0; width: 24px; height: 24px; border-radius: 50%;
+  background: #0095F6; border: 3px solid var(--bg); display: flex; align-items: center; justify-content: center;
+  color: #fff;
+}
 
 /* ── Post Card ── */
 .post-card { border-bottom: 1px solid var(--border); margin-bottom: 12px; }

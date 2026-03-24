@@ -26,6 +26,14 @@ const AppIcons = {
       <line x1="21" y1="21" x2="16.65" y2="16.65" />
     </svg>
   ),
+  Reels: ({ active }) => (
+    <svg width="24" height="24" fill={active ? "currentColor" : "none"} stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+      <rect x="3" y="3" width="18" height="18" rx="4" />
+      <polygon points="10 8 16 12 10 16 10 8" fill={active ? "var(--bg)" : "none"} />
+      <line x1="3" y1="9" x2="21" y2="9" />
+      <line x1="3" y1="15" x2="21" y2="15" />
+    </svg>
+  ),
   Create: () => (
     <svg width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
       <rect x="3" y="3" width="18" height="18" rx="5" ry="5" />
@@ -84,7 +92,7 @@ function App() {
     // Simple URL support (e.g. typing /chat or /profile)
     const handleLocation = () => {
       const path = window.location.pathname.replace("/", "");
-      const validPages = ["feed", "chat", "create", "notifications", "profile"];
+      const validPages = ["feed", "chat", "create", "notifications", "profile", "search", "reels"];
       if (validPages.includes(path)) setPage(path);
       else if (path === "") setPage("feed");
     };
@@ -115,6 +123,14 @@ function App() {
       {/* ── Top Navbar ── */}
       <header className="ig-navbar">
         <div className="ig-navbar-inner">
+          <div className="ig-nav-left mobile-only">
+            <button className="nav-icon-btn" onClick={() => setPage("create")}>
+              <svg width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                <path d="M12 5v14m-7-7h14" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+            </button>
+          </div>
+
           <div className="ig-logo" onClick={() => setPage("feed")}>
             Vyntra
           </div>
@@ -129,9 +145,6 @@ function App() {
             </button>
             <button className="nav-icon-btn desktop-only" onClick={() => setPage("create")} title="Create">
               <AppIcons.Create />
-            </button>
-            <button className="nav-icon-btn desktop-only" onClick={toggleTheme} title="Toggle Theme" id="v-toggle-btn">
-              <AppIcons.ThemeToggle isLight={theme === "light"} />
             </button>
 
             {/* Mobile & Desktop Icons */}
@@ -157,9 +170,10 @@ function App() {
         {page === "feed" && <Feed />}
         {page === "create" && <CreatePost onPostCreated={() => setPage("feed")} />}
         {page === "notifications" && <Notifications />}
-        {page === "profile" && <Profile />}
+        {page === "profile" && <Profile theme={theme} />}
         {page === "chat" && <Chat />}
         {page === "search" && <div className="ig-main" style={{ textAlign: "center", padding: 40, color: "var(--text-muted)" }}>Search Page Coming Soon</div>}
+        {page === "reels" && <div className="ig-main" style={{ textAlign: "center", padding: 40, color: "var(--text-muted)" }}>Reels Coming Soon</div>}
       </main>
 
       {/* ── Bottom Nav (Mobile Only) ── */}
@@ -173,8 +187,8 @@ function App() {
         <button className="nav-icon-btn" onClick={() => setPage("create")}>
           <AppIcons.Create />
         </button>
-        <button className="nav-icon-btn" onClick={toggleTheme} title="Toggle Theme">
-          <AppIcons.ThemeToggle isLight={theme === "light"} />
+        <button className="nav-icon-btn" onClick={() => setPage("reels")} title="Reels">
+          <AppIcons.Reels active={page === "reels"} />
         </button>
         <button className="nav-icon-btn" onClick={() => setPage("profile")}>
           <div style={{ width: 22, height: 22, borderRadius: "50%", background: "var(--surface-secondary)", color: "var(--text)", fontSize: 10, fontWeight: 700, display: "flex", alignItems: "center", justifyContent: "center", border: page === "profile" ? "1px solid var(--text)" : "1.5px solid var(--border)" }}>
