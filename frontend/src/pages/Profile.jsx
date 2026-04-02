@@ -2,14 +2,19 @@ import { useEffect, useState } from "react";
 import API from "../services/api";
 import { useAuth } from "../context/AuthContext";
 
-function Profile({ theme, toggleTheme }) {
+function Profile({ theme, toggleTheme, installPrompt }) {
   const { user } = useAuth();
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [isMobile, setIsMobile] = useState(window.innerWidth < 640);
 
-  const username = user?.username || "Vyntra User";
+  const username = user?.username || "Vyntra Member";
   const initials = username.slice(0, 2).toUpperCase();
+
+  // Real Stats from Database
+  const postCount = posts.length || 0;
+  const followerCount = user?.followers?.length || 0;
+  const followingCount = user?.following?.length || 0;
 
   useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth < 640);
@@ -20,7 +25,7 @@ function Profile({ theme, toggleTheme }) {
         const { data } = await API.get(`/posts/user/${user._id}`);
         setPosts(data);
       } catch (_) {
-        setPosts(Array(9).fill({ _id: Math.random(), image: `https://picsum.photos/seed/${Math.random()}/400/400` }));
+        setPosts([]); // Pure real data: No mock fallback
       }
       setLoading(false);
     };
@@ -29,8 +34,31 @@ function Profile({ theme, toggleTheme }) {
     return () => window.removeEventListener("resize", handleResize);
   }, [user]);
 
+  const handleDownloadApp = async () => {
+    if (installPrompt) {
+      installPrompt.prompt();
+      const { outcome } = await installPrompt.userChoice;
+      console.log(`PWA Outcome: ${outcome}`);
+    } else {
+      alert("To download Vyntra on your mobile, select 'Add to Home Screen' in your browser's menu.");
+    }
+  };
+
+  const handleShareApp = () => {
+    if (navigator.share) {
+      navigator.share({
+        title: 'Vyntra Social',
+        text: `Join me on Vyntra! Discover a premium social experience. ✨`,
+        url: window.location.origin
+      });
+    } else if (navigator.clipboard) {
+      navigator.clipboard.writeText(window.location.origin);
+      alert("App link copied! Share it with your friends. 🚀");
+    }
+  };
+
   const ThemeToggle = ({ isLight }) => (
-    <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+    <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24">
       {isLight ? (
         <path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z" />
       ) : (
@@ -53,14 +81,7 @@ function Profile({ theme, toggleTheme }) {
         alignItems: isMobile ? "flex-start" : "center",
         borderBottom: isMobile ? "1px solid var(--border)" : "none"
       }}>
-        {/* Top Header Row for Mobile (Avatar + Name + Buttons) */}
-        <div style={{ 
-          display: "flex", 
-          flexDirection: "row", 
-          gap: isMobile ? 24 : 0, 
-          width: "100%", 
-          alignItems: "center" 
-        }}>
+        <div style={{ display: "flex", flexDirection: "row", gap: isMobile ? 24 : 0, width: "100%", alignItems: "center" }}>
           {/* Avatar */}
           <div style={{ flexShrink: 0 }}>
             <div style={{ 
@@ -80,7 +101,6 @@ function Profile({ theme, toggleTheme }) {
             </div>
           </div>
 
-          {/* Desktop Info (Beside Avatar) / Mobile Basic Info (Beside Avatar) */}
           <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: 12 }}>
             <div style={{ display: "flex", alignItems: isMobile ? "flex-start" : "center", gap: 12, flexDirection: isMobile ? "column" : "row" }}>
               <h2 style={{ fontSize: isMobile ? 20 : 28, fontWeight: 300 }}>{username}</h2>
@@ -92,40 +112,27 @@ function Profile({ theme, toggleTheme }) {
                 }}>Edit Profile</button>
                 
                 <button 
-                  onClick={() => {
-                    const blob = new Blob([`Username: ${username}\nPosts: ${posts.length}\nFollowers: 3.4k`], { type: 'text/plain' });
-                    const url = URL.createObjectURL(blob);
-                    const a = document.createElement('a');
-                    a.href = url;
-                    a.download = `${username}_profile.txt`;
-                    a.click();
-                  }}
-                  title="Download Profile"
+                  onClick={handleDownloadApp}
+                  title="Download App (PWA)"
                   style={{ 
                     background: "var(--surface-hover)", border: "1px solid var(--border)", color: "var(--text)", 
                     padding: "6px 10px", borderRadius: 8, display: "flex", alignItems: "center", justifyContent: "center",
                     cursor: "pointer"
                   }}
                 >
-                  <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+                  <svg width="19" height="19" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
                 </button>
 
                 <button 
-                  onClick={() => {
-                    if (navigator.share) {
-                      navigator.share({ title: 'Vyntra', text: `Check out ${username} on Vyntra!`, url: window.location.href });
-                    } else {
-                      alert("Sharing is not supported on this browser.");
-                    }
-                  }}
-                  title="App Share"
+                  onClick={handleShareApp}
+                  title="Share App"
                   style={{ 
                     background: "var(--surface-hover)", border: "1px solid var(--border)", color: "var(--text)", 
                     padding: "6px 10px", borderRadius: 8, display: "flex", alignItems: "center", justifyContent: "center",
                     cursor: "pointer"
                   }}
                 >
-                  <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M8.684 10.703L15.316 14.122M15.316 9.878L8.684 13.297M21 17a3 3 0 11-6 0 3 3 0 016 0zM9 12a3 3 0 11-6 0 3 3 0 016 0zM21 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                  <svg width="19" height="19" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M8.684 10.703L15.316 14.122M15.316 9.878L8.684 13.297M21 17a3 3 0 11-6 0 3 3 0 016 0zM9 12a3 3 0 11-6 0 3 3 0 016 0zM21 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
                 </button>
 
                 <button 
@@ -142,43 +149,38 @@ function Profile({ theme, toggleTheme }) {
               </div>
             </div>
             
-            {/* Desktop Stats (Hidden on Mobile row) */}
             {!isMobile && (
               <div style={{ display: "flex", gap: 40, margin: "10px 0" }}>
-                <div><strong style={{ fontWeight: 700 }}>{posts.length}</strong> <span style={{ color: "var(--text-info)" }}>posts</span></div>
-                <div><strong style={{ fontWeight: 700 }}>3.4k</strong> <span style={{ color: "var(--text-info)" }}>followers</span></div>
-                <div><strong style={{ fontWeight: 700 }}>120</strong> <span style={{ color: "var(--text-info)" }}>following</span></div>
+                <div><strong style={{ fontWeight: 700 }}>{postCount}</strong> <span style={{ color: "var(--text-info)" }}>posts</span></div>
+                <div><strong style={{ fontWeight: 700 }}>{followerCount}</strong> <span style={{ color: "var(--text-info)" }}>followers</span></div>
+                <div><strong style={{ fontWeight: 700 }}>{followingCount}</strong> <span style={{ color: "var(--text-info)" }}>following</span></div>
               </div>
             )}
             
             {!isMobile && (
               <div style={{ fontSize: 14, lineHeight: 1.5 }}>
                 <div style={{ fontWeight: 700 }}>{username}</div>
-                <p>Exploring the intersection of art and technology ✨</p>
-                <a href="#" style={{ color: "var(--accent)", textDecoration: "none", fontWeight: 600 }}>vyn.tra/join</a>
+                <p>Welcome to your Vyntra profile! ✨</p>
               </div>
             )}
           </div>
         </div>
 
-        {/* Mobile Bio (Full Width below Avatar row) */}
         {isMobile && (
-          <div style={{ fontSize: 14, lineHeight: 1.4, width: "100%" }}>
+          <div style={{ fontSize: 14, lineHeight: 1.4, width: "100%", padding: "0 4px" }}>
             <div style={{ fontWeight: 700 }}>{username}</div>
-            <p>Exploring the intersection of art and technology ✨</p>
-            <a href="#" style={{ color: "var(--accent)", textDecoration: "none", fontWeight: 600 }}>vyn.tra/join</a>
+            <p>Welcome to your Vyntra profile! ✨</p>
           </div>
         )}
 
-        {/* Mobile Stats (Full Width below Bio) */}
         {isMobile && (
           <div style={{ 
             display: "flex", width: "100%", justifyContent: "space-around", 
             padding: "12px 0", borderTop: "1px solid var(--border)", marginTop: 10
           }}>
-            <div style={{ textAlign: "center", fontSize: 14 }}><div style={{ fontWeight: 700 }}>{posts.length}</div><span style={{ color: "var(--text-muted)", fontSize: 13 }}>posts</span></div>
-            <div style={{ textAlign: "center", fontSize: 14 }}><div style={{ fontWeight: 700 }}>3.4k</div><span style={{ color: "var(--text-muted)", fontSize: 13 }}>followers</span></div>
-            <div style={{ textAlign: "center", fontSize: 14 }}><div style={{ fontWeight: 700 }}>120</div><span style={{ color: "var(--text-muted)", fontSize: 13 }}>following</span></div>
+            <div style={{ textAlign: "center", fontSize: 14 }}><div style={{ fontWeight: 700 }}>{postCount}</div><span style={{ color: "var(--text-muted)", fontSize: 13 }}>posts</span></div>
+            <div style={{ textAlign: "center", fontSize: 14 }}><div style={{ fontWeight: 700 }}>{followerCount}</div><span style={{ color: "var(--text-muted)", fontSize: 13 }}>followers</span></div>
+            <div style={{ textAlign: "center", fontSize: 14 }}><div style={{ fontWeight: 700 }}>{followingCount}</div><span style={{ color: "var(--text-muted)", fontSize: 13 }}>following</span></div>
           </div>
         )}
       </header>

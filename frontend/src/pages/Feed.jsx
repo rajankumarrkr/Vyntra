@@ -32,13 +32,9 @@ function StoryItem({ name, active = true, isUser = false }) {
 }
 
 function StoriesBar() {
-  const mockStories = ["cristiano", "leomessi", "nasa", "nike", "natgeo"];
   return (
     <div className="stories-container glass" style={{ marginBottom: 20 }}>
       <StoryItem name="Your story" active={false} isUser={true} />
-      {mockStories.map((s, i) => (
-        <StoryItem key={i} name={s} active={true} />
-      ))}
     </div>
   );
 }

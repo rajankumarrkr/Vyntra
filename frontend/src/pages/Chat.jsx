@@ -2,26 +2,12 @@ import { useState, useEffect, useRef } from "react";
 import socket from "../services/socket";
 import { useAuth } from "../context/AuthContext";
 
-const MOCK_CONVERSATIONS = [
-  { id: "1", username: "cristiano", lastMsg: "Looking forward to it! 🔥", time: "2m", active: true },
-  { id: "2", username: "leomessi", lastMsg: "Gracias amigo! 🙌", time: "15m", active: false },
-  { id: "3", username: "natgeo", lastMsg: "New wildlife feature soon.", time: "2h", active: false },
-  { id: "4", username: "nike", lastMsg: "Just do it.", time: "1d", active: false },
-  { id: "5", username: "nasa", lastMsg: "Mars rover update incoming.", time: "3d", active: false },
-];
-
-const MOCK_MESSAGES = [
-  { id: "m1", text: "Hey! How's the new Vyntra UI coming along?", sender: "them", time: "10:00 AM" },
-  { id: "m2", text: "It's incredible! The glassmorphism looks very premium.", sender: "me", time: "10:05 AM" },
-  { id: "m3", text: "That's exactly what I wanted to hear! Mobile responsive too?", sender: "them", time: "10:10 AM" },
-  { id: "m4", text: "Yes, perfectly optimized for all devices. 🚀", sender: "me", time: "10:12 AM" },
-];
-
 function Chat() {
   const { user } = useAuth();
   const [activeChat, setActiveChat] = useState(null);
   const [message, setMessage] = useState("");
-  const [messages, setMessages] = useState(MOCK_MESSAGES);
+  const [messages, setMessages] = useState([]);
+  const [conversations, setConversations] = useState([]);
   const scrollRef = useRef(null);
 
   useEffect(() => {
@@ -81,31 +67,37 @@ function Chat() {
 
           <div style={{ flex: 1, overflowY: "auto", padding: "12px 12px" }}>
             <h3 style={{ fontSize: 16, fontWeight: 700, padding: "8px 12px" }}>Messages</h3>
-            {MOCK_CONVERSATIONS.map((conv) => (
-              <div 
-                key={conv.id} 
-                className="conversation-item"
-                onClick={() => setActiveChat(conv)}
-                style={{ 
-                  padding: 12, borderRadius: 16, display: "flex", gap: 12, 
-                  alignItems: "center", cursor: "pointer", transition: "var(--transition)",
-                  background: activeChat?.id === conv.id ? "var(--accent-light)" : "transparent"
-                }}
-              >
-                <div style={{ width: 56, height: 56, borderRadius: "50%", background: "var(--ig-gradient)", padding: 2 }}>
-                  <div style={{ width: "100%", height: "100%", borderRadius: "50%", background: "var(--surface)", border: "2px solid var(--bg)", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 800 }}>
-                    {conv.username[0].toUpperCase()}
-                  </div>
-                </div>
-                <div style={{ flex: 1, minWidth: 0 }}>
-                  <div style={{ fontWeight: 600, fontSize: 14 }}>{conv.username}</div>
-                  <div style={{ fontSize: 13, color: "var(--text-muted)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-                    {conv.lastMsg}
-                  </div>
-                </div>
-                {conv.active && <div style={{ width: 10, height: 10, borderRadius: "50%", background: "var(--accent)" }} />}
+            {conversations.length === 0 ? (
+              <div style={{ textAlign: "center", padding: "40px 20px", color: "var(--text-muted)", fontSize: 14 }}>
+                No active conversations yet.
               </div>
-            ))}
+            ) : (
+              conversations.map((conv) => (
+                <div 
+                  key={conv.id} 
+                  className="conversation-item"
+                  onClick={() => setActiveChat(conv)}
+                  style={{ 
+                    padding: 12, borderRadius: 16, display: "flex", gap: 12, 
+                    alignItems: "center", cursor: "pointer", transition: "var(--transition)",
+                    background: activeChat?.id === conv.id ? "var(--accent-light)" : "transparent"
+                  }}
+                >
+                  <div style={{ width: 56, height: 56, borderRadius: "50%", background: "var(--ig-gradient)", padding: 2 }}>
+                    <div style={{ width: "100%", height: "100%", borderRadius: "50%", background: "var(--surface)", border: "2px solid var(--bg)", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 800 }}>
+                      {conv.username?.[0].toUpperCase() || "?"}
+                    </div>
+                  </div>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ fontWeight: 600, fontSize: 14 }}>{conv.username}</div>
+                    <div style={{ fontSize: 13, color: "var(--text-muted)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                      {conv.lastMsg}
+                    </div>
+                  </div>
+                  {conv.active && <div style={{ width: 10, height: 10, borderRadius: "50%", background: "var(--accent)" }} />}
+                </div>
+              ))
+            )}
           </div>
         </aside>
 

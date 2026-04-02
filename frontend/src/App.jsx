@@ -73,6 +73,15 @@ function App() {
     setTheme(prev => (prev === "dark" ? "light" : "dark"));
   }, []);
 
+  const [deferredPrompt, setDeferredPrompt] = useState(null);
+
+  useEffect(() => {
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      setDeferredPrompt(e);
+    });
+  }, []);
+
   const handlePageChange = (newPage) => {
     setPage(newPage);
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -91,7 +100,7 @@ function App() {
         {page === "feed" && <Feed onActivityClick={() => handlePageChange("notifications")} onMessagesClick={() => handlePageChange("chat")} />}
         {page === "create" && <CreatePost onPostCreated={() => handlePageChange("feed")} />}
         {page === "notifications" && <Notifications />}
-        {page === "profile" && <Profile theme={theme} toggleTheme={toggleTheme} />}
+        {page === "profile" && <Profile theme={theme} toggleTheme={toggleTheme} installPrompt={deferredPrompt} />}
         {page === "chat" && <Chat />}
         {page === "search" && <div className="ig-main" style={{ textAlign: "center", padding: 60, color: "var(--text-muted)" }}>Search is coming soon</div>}
         {page === "reels" && <div className="ig-main" style={{ textAlign: "center", padding: 60, color: "var(--text-muted)" }}>Reels are coming soon</div>}
