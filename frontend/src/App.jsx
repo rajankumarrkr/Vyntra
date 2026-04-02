@@ -120,9 +120,10 @@ function App() {
   return (
     <div className="v-app-container" style={{ minHeight: "100vh" }}>
       
-      {/* ── Top Navbar ── */}
-      <header className="ig-navbar">
-        <div className="ig-navbar-inner">
+      {/* ── Top Navbar (Hidden on Profile) ── */}
+      {page !== "profile" && (
+        <header className="ig-navbar">
+          <div className="ig-navbar-inner">
           <div className="ig-nav-left mobile-only">
             <button className="nav-icon-btn" onClick={() => setPage("create")}>
               <svg width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
@@ -163,7 +164,8 @@ function App() {
             </button>
           </div>
         </div>
-      </header>
+        </header>
+      )}
 
       {/* ── Main Content ── */}
       <main className="ig-view-port">
